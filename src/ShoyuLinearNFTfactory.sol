@@ -18,9 +18,9 @@ contract ShoyuLinearNFTfactory {
     );
 
     function createShoyuLinearNFT(
-        string memory _name,
-        string memory _symbol,
-        string memory _baseURI,
+        string calldata _name,
+        string calldata _symbol,
+        string calldata _baseURI,
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit,

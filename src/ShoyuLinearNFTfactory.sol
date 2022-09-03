@@ -9,6 +9,7 @@ import {ShoyuLinearNFT} from "./ShoyuLinearNFT.sol";
 contract ShoyuLinearNFTfactory {
     event CreateShoyuLinearNFT(
         address indexed nft,
+        address indexed owner,
         string name,
         string symbol,
         string baseURI,
@@ -18,6 +19,7 @@ contract ShoyuLinearNFTfactory {
     );
 
     function createShoyuLinearNFT(
+        address _owner,
         string calldata _name,
         string calldata _symbol,
         string calldata _baseURI,
@@ -27,9 +29,9 @@ contract ShoyuLinearNFTfactory {
         bytes32 _salt
     ) external payable returns (address nft) {
         nft = address(
-            new ShoyuLinearNFT{salt: _salt}(_name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit)
+            new ShoyuLinearNFT{salt: _salt}(_owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit)
         );
 
-        emit CreateShoyuLinearNFT(nft, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit);
+        emit CreateShoyuLinearNFT(nft, _owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit);
     }
 }

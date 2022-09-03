@@ -35,7 +35,8 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit
-    )   ERC721(_name, _symbol)
+    ) payable 
+        ERC721(_name, _symbol)
         LinearVRGDA(
             _targetPrice, 
             _priceDecayPercent, 

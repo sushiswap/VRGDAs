@@ -5,31 +5,33 @@ import {Owned} from "solmate/auth/Owned.sol";
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
-import {toDaysWadUnsafe} from "./utils/SignedWadMath.sol";
+import {toDaysWadUnsafe, toWadUnsafe} from "./utils/SignedWadMath.sol";
 
-import {LinearVRGDA} from "./LinearVRGDA.sol";
+import {LogisticVRGDA} from "./LogisticVRGDA.sol";
 
-/// @title Shoyu Linear VRGDA NFT
+/// @title Shoyu Logistic VRGDA NFT
 /// @author transmissions11 <t11s@paradigm.xyz>
 /// @author FrankieIsLost <frankie@paradigm.xyz>
 /// @author asnared <https://github.com/abigger87>
 /// @author Modified with the sauce, z0r0z.eth <🍣>
-/// @notice Redeemable Shoyu NFT sold using LinearVRGDA.
-contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
+/// @notice Redeemable Shoyu NFT sold using LogisticVRGD.
+contract ShoyuLogisticNFT is Owned, ERC721, LogisticVRGDA {
     using SafeTransferLib for address;
-    
+
     /*//////////////////////////////////////////////////////////////
                               SALES STORAGE
     //////////////////////////////////////////////////////////////*/
-    
+
     string public baseURI; // The base metadata for tokens.
     
     uint40 public immutable cooldownDelta; // The cooldown for redemptions.
 
+    uint256 public immutable startTime = block.timestamp; // When VRGDA sales begun.
+
+    uint256 public immutable maxSellable; // Max supply.
+    
     uint256 public totalSupply; // The total number of tokens sold so far.
 
-    uint256 public immutable startTime = block.timestamp; // When VRGDA sales begun.
-    
     mapping(uint256 => uint256) public redemptions; // Allows the holder to redeem mint price after cooldown.
     
     mapping(uint256 => uint256) public cooldown; // Maps token id to when the redemptions are available.
@@ -46,11 +48,25 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
         uint40 _cooldownDelta,
         int256 _targetPrice,
         int256 _priceDecayPercent,
-        int256 _perTimeUnit
-    ) payable Owned(_owner) ERC721(_name, _symbol) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
+        uint256 _maxSellable,
+        int256 _timeScale
+    ) payable Owned(_owner)
+        ERC721(
+            _name,
+            _symbol
+        )
+        LogisticVRGDA(
+            _targetPrice,
+            _priceDecayPercent,
+            toWadUnsafe(_maxSellable),
+            _timeScale
+        )
+    {
         baseURI = _baseURI;
         
         cooldownDelta = _cooldownDelta;
+
+        maxSellable = _maxSellable;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -58,6 +74,9 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
     //////////////////////////////////////////////////////////////*/
 
     function mint() external payable returns (uint256 mintedId) {
+        // Note: We don't need to check totalSold < MAX_MINTABLE, because getVRGDAPrice will
+        // revert if we're over the max mintable limit we set when constructing LogisticVRGDA.
+
         unchecked {
             // Note: By using toDaysWadUnsafe(block.timestamp - startTime) we are establishing that 1 "unit of time" is 1 day.
             uint256 price = getVRGDAPrice(toDaysWadUnsafe(block.timestamp - startTime), mintedId = totalSupply++);
@@ -65,7 +84,7 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
             require(msg.value >= price, "UNDERPAID"); // Don't allow underpaying.
 
             _mint(msg.sender, mintedId); // Mint the NFT using mintedId.
-            
+
             redemptions[mintedId] = price;
             
             cooldown[mintedId] = block.timestamp + cooldownDelta;
@@ -76,7 +95,7 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
             msg.sender.safeTransferETH(msg.value - price);
         }
     }
-    
+
     function redeem(uint256 id) external payable {
         // We branch redemptions on whether or not there is an owner role set.
         require(owner == address(0), "NOT_REDEEMABLE");

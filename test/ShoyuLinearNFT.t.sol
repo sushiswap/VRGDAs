@@ -3,7 +3,8 @@ pragma solidity 0.8.15;
 
 import {DSTestPlus} from "solmate/test/utils/DSTestPlus.sol";
 
-import {ShoyuLinearNFT, ShoyuLinearNFTfactory} from "../src/ShoyuLinearNFTfactory.sol";
+import {ShoyuLinearNFTfactory} from "../src/ShoyuLinearNFTfactory.sol";
+import {ShoyuLinearNFT} from "../src/ShoyuLinearNFT.sol";
 
 contract ShoyuLinearNFTTest is DSTestPlus {
     ShoyuLinearNFT nft;
@@ -20,12 +21,12 @@ contract ShoyuLinearNFTTest is DSTestPlus {
     int256 internal constant priceDecayPercent = 0.31e18;
 
     int256 internal constant perTimeUnit = 2e18;
-    
+
     bytes32 internal constant salt = 0x73686f7975000000000000000000000000000000000000000000000000000000;
 
     function setUp() public {
         factory = new ShoyuLinearNFTfactory();
-        
+
         nft = ShoyuLinearNFTfactory.createShoyuLinearNFT(
             name,
             symbol,

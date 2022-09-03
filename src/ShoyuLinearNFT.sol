@@ -4,9 +4,9 @@ pragma solidity >=0.8.0;
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
-import {toDaysWadUnsafe} from "../utils/SignedWadMath.sol";
+import {toDaysWadUnsafe} from "./utils/SignedWadMath.sol";
 
-import {LinearVRGDA} from "../LinearVRGDA.sol";
+import {LinearVRGDA} from "./LinearVRGDA.sol";
 
 /// @title Shoyu Linear VRGDA NFT
 /// @author transmissions11 <t11s@paradigm.xyz>
@@ -21,7 +21,7 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
     uint256 public totalSold; // The total number of tokens sold so far.
 
     uint256 public startTime = block.timestamp; // When VRGDA sales begun.
-    
+
     string public baseURI; // The base metadata for tokens.
 
     /*//////////////////////////////////////////////////////////////
@@ -29,22 +29,13 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
     //////////////////////////////////////////////////////////////*/
 
     constructor(
-        string memory _name, 
+        string memory _name,
         string memory _symbol,
         string memory _baseURI,
         int256 _targetPrice,
         int256 _priceDecayPercent,
-        int256 _perTimeUnit) payable 
-        ERC721(
-            _name, 
-            _symbol
-        )
-        LinearVRGDA(
-            _targetPrice, 
-            _priceDecayPercent, 
-            _perTimeUnit 
-        )
-    {
+        int256 _perTimeUnit
+    ) payable ERC721(_name, _symbol) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
         baseURI = _baseURI;
     }
 
@@ -75,7 +66,7 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return string(abi.encodePacked(baseURI, _toString(tokenId)));
     }
-    
+
     function _toString(uint256 value) internal pure virtual returns (string memory str) {
         assembly {
             // The maximum value of a uint256 contains 78 digits (1 byte per digit), but

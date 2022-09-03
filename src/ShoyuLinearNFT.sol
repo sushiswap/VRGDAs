@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import {Owned} from "solmate/auth/Owned.sol";
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
@@ -13,7 +14,9 @@ import {LinearVRGDA} from "./LinearVRGDA.sol";
 /// @author FrankieIsLost <frankie@paradigm.xyz>
 /// @author z0r0z.eth <🍣>
 /// @notice NFT sold using LinearVRGDA for Shoyu.
-contract ShoyuLinearNFT is ERC721, LinearVRGDA {
+contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
+    using SafeTransferLib for address;
+    
     /*//////////////////////////////////////////////////////////////
                               SALES STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -29,13 +32,14 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
     //////////////////////////////////////////////////////////////*/
 
     constructor(
+        address _owner,
         string memory _name,
         string memory _symbol,
         string memory _baseURI,
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit
-    ) payable ERC721(_name, _symbol) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
+    ) payable Owned(_owner) ERC721(_name, _symbol) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
         baseURI = _baseURI;
     }
 
@@ -55,7 +59,7 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
             // Note: We do this at the end to avoid creating a reentrancy vector.
             // Refund the user any ETH they spent over the current price of the NFT.
             // Unchecked is safe here because we validate msg.value >= price above.
-            SafeTransferLib.safeTransferETH(msg.sender, msg.value - price);
+            msg.sender.safeTransferETH(msg.value - price);
         }
     }
 
@@ -104,5 +108,13 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
             // Store the length.
             mstore(str, length)
         }
+    }
+    
+    /*//////////////////////////////////////////////////////////////
+                              PULLING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    function pull(address to, uint256 amount) external payable onlyOwner {
+        to.safeTransferETH(amount);
     }
 }

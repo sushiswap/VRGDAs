@@ -3,6 +3,7 @@ solc = "0.8.16"
 bytecode_hash = "none"
 optimizer_runs = 1000000
 no_match_test = "FFI"
+via_ir = true
 
 [profile.intense]
 fuzz_runs = 10000
@@ -13,4 +14,4 @@ ffi = true
 match_test = "FFI"
 no_match_test = "a^"
 fuzz_runs = 1000
-via_ir = true
+

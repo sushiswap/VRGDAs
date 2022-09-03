@@ -85,7 +85,7 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
         
         require(block.timestamp >= cooldown[id], "NOT_REDEEMABLE_YET");
         
-        uint256 redemption = redemptions[token];
+        uint256 redemption = redemptions[id];
         
         delete redemptions[id];
         

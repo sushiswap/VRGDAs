@@ -29,24 +29,20 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
     //////////////////////////////////////////////////////////////*/
 
     constructor(
-      string memory _name, 
-      string memory _symbol,
-      string memory _baseURI,
-      int256 _targetPrice,
-      int256 _priceDecayPercent,
-      int256 _perTimeUnit
-    )
-      ERC721(
-        _name,
-        _symbol 
-      )
-      LinearVRGDA(
-        _targetPrice, 
-        _priceDecayPercent, 
-        _perTimeUnit 
-      )
+        string memory _name, 
+        string memory _symbol,
+        string memory _baseURI,
+        int256 _targetPrice,
+        int256 _priceDecayPercent,
+        int256 _perTimeUnit
+    )   ERC721(_name, _symbol)
+        LinearVRGDA(
+            _targetPrice, 
+            _priceDecayPercent, 
+            _perTimeUnit 
+        )
     {
-      baseURI = _baseURI;
+        baseURI = _baseURI;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -73,7 +69,7 @@ contract ShoyuLinearNFT is ERC721, LinearVRGDA {
                                 URI LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function tokenURI(uint256 tokenId) public pure override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return string(abi.encodePacked(baseURI, _toString(tokenId)));
     }
     

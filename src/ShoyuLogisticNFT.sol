@@ -14,7 +14,7 @@ import {LogisticVRGDA} from "./LogisticVRGDA.sol";
 /// @author FrankieIsLost <frankie@paradigm.xyz>
 /// @author asnared <https://github.com/abigger87>
 /// @author Modified with the sauce, z0r0z.eth <🍣>
-/// @notice Redeemable Shoyu NFT sold using LogisticVRGD.
+/// @notice Redeemable Shoyu NFT sold using LogisticVRGDA.
 contract ShoyuLogisticNFT is Owned, ERC721, LogisticVRGDA {
     using SafeTransferLib for address;
 

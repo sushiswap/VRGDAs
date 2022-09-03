@@ -79,7 +79,7 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
     
     function redeem(uint256 id) external payable {
         // We branch redemptions on whether or not there is an owner role set.
-        require(owner = address(0), "NOT_REDEEMABLE");
+        require(owner == address(0), "NOT_REDEEMABLE");
         
         require(msg.sender == ownerOf(id), "NOT_OWNER");
         

@@ -27,12 +27,12 @@ contract ShoyuLinearNFTTest is DSTestPlus {
     function setUp() public {
         factory = new ShoyuLinearNFTfactory();
 
-        nft = ShoyuLinearNFTfactory.createShoyuLinearNFT(
+        nft = factory.createShoyuLinearNFT(
             address(this),
             name,
             symbol,
             baseURI,
-            targetPrie,
+            targetPrice,
             priceDecayPercent,
             perTimeUnit,
             salt

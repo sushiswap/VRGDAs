@@ -8,7 +8,7 @@ import {ShoyuLinearNFT} from "./ShoyuLinearNFT.sol";
 /// @notice Factory for NFTs sold using LinearVRGDA for Shoyu.
 contract ShoyuLinearNFTfactory {
     event CreateShoyuLinearNFT(
-        address indexed nft,
+        ShoyuLinearNFT indexed nft,
         address indexed owner,
         string name,
         string symbol,
@@ -27,10 +27,8 @@ contract ShoyuLinearNFTfactory {
         int256 _priceDecayPercent,
         int256 _perTimeUnit,
         bytes32 _salt
-    ) external payable returns (address nft) {
-        nft = address(
-            new ShoyuLinearNFT{salt: _salt}(_owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit)
-        );
+    ) external payable returns (ShoyuLinearNFT nft) {
+        nft = new ShoyuLinearNFT{salt: _salt}(_owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit);
 
         emit CreateShoyuLinearNFT(nft, _owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit);
     }

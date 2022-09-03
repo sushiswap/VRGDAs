@@ -13,6 +13,7 @@ contract ShoyuLinearNFTfactory {
         string name,
         string symbol,
         string baseURI,
+        uint40 cooldownDelta,
         int256 targetPrice,
         int256 priceDecayPercent,
         int256 perTimeUnit
@@ -23,13 +24,14 @@ contract ShoyuLinearNFTfactory {
         string calldata _name,
         string calldata _symbol,
         string calldata _baseURI,
+        uint40 _cooldownDelta,
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit,
         bytes32 _salt
     ) external payable returns (ShoyuLinearNFT nft) {
-        nft = new ShoyuLinearNFT{salt: _salt}(_owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit);
+        nft = new ShoyuLinearNFT{salt: _salt}(_owner, _name, _symbol, _baseURI, _cooldownDelta, _targetPrice, _priceDecayPercent, _perTimeUnit);
 
-        emit CreateShoyuLinearNFT(nft, _owner, _name, _symbol, _baseURI, _targetPrice, _priceDecayPercent, _perTimeUnit);
+        emit CreateShoyuLinearNFT(nft, _owner, _name, _symbol, _baseURI, _cooldownDelta, _targetPrice, _priceDecayPercent, _perTimeUnit);
     }
 }

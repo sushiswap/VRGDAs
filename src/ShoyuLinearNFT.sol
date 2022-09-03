@@ -9,9 +9,10 @@ import {toDaysWadUnsafe} from "./utils/SignedWadMath.sol";
 
 import {LinearVRGDA} from "./LinearVRGDA.sol";
 
-/// @title Shoyu Linear VRGDA NFT
+/// @title Shoyu Linear VRGDA NFT with redemptions
 /// @author transmissions11 <t11s@paradigm.xyz>
 /// @author FrankieIsLost <frankie@paradigm.xyz>
+/// @author asnared <https://github.com/abigger87>
 /// @author z0r0z.eth <🍣>
 /// @notice NFT sold using LinearVRGDA for Shoyu.
 contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
@@ -20,12 +21,18 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
     /*//////////////////////////////////////////////////////////////
                               SALES STORAGE
     //////////////////////////////////////////////////////////////*/
+    
+    string public baseURI; // The base metadata for tokens.
+    
+    uint40 public cooldownDelta; // The cooldown for redemptions.
 
-    uint256 public totalSold; // The total number of tokens sold so far.
+    uint256 public totalSupply; // The total number of tokens sold so far.
 
     uint256 public startTime = block.timestamp; // When VRGDA sales begun.
-
-    string public baseURI; // The base metadata for tokens.
+    
+    mapping(uint256 => uint256) public redemptions; // Allows the holder to redeem mint price after cooldown.
+    
+    mapping(uint256 => uint256) public cooldown; // Maps token id to when the redemptions are available.
 
     /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
@@ -36,11 +43,14 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
         string memory _name,
         string memory _symbol,
         string memory _baseURI,
+        uint40 _cooldownDelta,
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit
     ) payable Owned(_owner) ERC721(_name, _symbol) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
         baseURI = _baseURI;
+        
+        cooldownDelta = _cooldownDelta;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -50,17 +60,40 @@ contract ShoyuLinearNFT is Owned, ERC721, LinearVRGDA {
     function mint() external payable returns (uint256 mintedId) {
         unchecked {
             // Note: By using toDaysWadUnsafe(block.timestamp - startTime) we are establishing that 1 "unit of time" is 1 day.
-            uint256 price = getVRGDAPrice(toDaysWadUnsafe(block.timestamp - startTime), mintedId = totalSold++);
+            uint256 price = getVRGDAPrice(toDaysWadUnsafe(block.timestamp - startTime), mintedId = totalSupply++);
 
             require(msg.value >= price, "UNDERPAID"); // Don't allow underpaying.
 
             _mint(msg.sender, mintedId); // Mint the NFT using mintedId.
+            
+            redemptions[mintedId] = price;
+            
+            cooldown[mintedId] = block.timestamp + cooldownDelta;
 
             // Note: We do this at the end to avoid creating a reentrancy vector.
             // Refund the user any ETH they spent over the current price of the NFT.
             // Unchecked is safe here because we validate msg.value >= price above.
             msg.sender.safeTransferETH(msg.value - price);
         }
+    }
+    
+    function redeem(uint256 id) external payable {
+        // We branch redemptions on whether or not there is an owner role set.
+        require(owner = address(0), "NOT_REDEEMABLE");
+        
+        require(msg.sender == ownerOf(id), "NOT_OWNER");
+        
+        require(block.timestamp >= cooldown[id], "NOT_REDEEMABLE_YET");
+        
+        uint256 redemption = redemptions[token];
+        
+        delete redemptions[id];
+        
+        delete cooldown[id];
+        
+        msg.sender.safeTransferETH(redemption);
+        
+        _burn(id);
     }
 
     /*//////////////////////////////////////////////////////////////

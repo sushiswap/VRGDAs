@@ -15,6 +15,8 @@ contract ShoyuLinearNFTTest is DSTestPlus {
     string internal symbol = "LINEAR";
 
     string internal baseURI = "PLACEHOLDER";
+    
+    uint40 internal cooldownDelta = 1 weeks;
 
     int256 internal constant targetPrice = 69.42e18;
 
@@ -32,6 +34,7 @@ contract ShoyuLinearNFTTest is DSTestPlus {
             name,
             symbol,
             baseURI,
+            cooldownDelta,
             targetPrice,
             priceDecayPercent,
             perTimeUnit,
